@@ -33,12 +33,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# agent working notes & local archive
+# agent working notes, reports, tests & non-core support files
 /.agents/
 /_arsip/
-/laporan/playwright-results.json
+/anti-slop/
+/laporan/
+/tests/
+/playwright.config.ts
+/AGENTS.md
+/PROJECT.md
+/notion-DESIGN.md
 /image.png
 /bug-spin.png
 /Dashboard World Clock UI.jpg
-/[Logo]Letmithink.webp
-/[Logo][Icon]Letmithink.webp
+/\[Logo\]Letmithink.webp
+/\[Logo\]\[Icon\]Letmithink.webp
