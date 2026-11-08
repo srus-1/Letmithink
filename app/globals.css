@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: var(--font-inter);
+  }
+
+  body {
+    background-color: #FFFFFF;
+    color: #0D1117;
+    font-family: var(--font-inter);
+    overflow-x: hidden;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  button,
+  [role="button"],
+  a[href],
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  :focus-visible {
+    outline: 2px solid #0D1117;
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: #C6FF33;
+    color: #0D1117;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(26, 26, 26, 0.16);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 26, 26, 0.3);
+}
