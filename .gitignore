@@ -18,6 +18,8 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.log
 
 # debug
 npm-debug.log*
@@ -25,7 +27,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -35,8 +39,13 @@ yarn-error.log*
 
 # agent working notes, reports, tests & non-core support files
 /.agents/
+/.claude/
+/.cursor/
+/.gemini/
+/.vscode/
 /_arsip/
 /anti-slop/
+/docs/
 /laporan/
 /tasks/
 /tests/
