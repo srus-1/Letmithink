@@ -5,7 +5,7 @@ import { ShieldCheck, Database } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-hairline bg-canvas mt-8 py-5 px-4 sm:px-6 lg:px-8 text-xs text-ink-slate">
+    <footer className="w-full border-t border-hairline bg-canvas mt-8 py-5 px-5 sm:px-10 lg:px-16 text-xs text-ink-slate">
       <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Database className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />

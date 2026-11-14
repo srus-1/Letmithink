@@ -29,6 +29,33 @@ export function CueNotesBar({
     { num: "03", placeholder: "Simpulan atau kalimat penutup" },
   ];
 
+  const handleInputKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    currentText: string
+  ) => {
+    // Allow navigation, deletion, selection, and shortcuts
+    if (
+      e.key === "Backspace" ||
+      e.key === "Delete" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "Tab" ||
+      e.key === "Home" ||
+      e.key === "End" ||
+      e.ctrlKey ||
+      e.metaKey
+    ) {
+      return;
+    }
+    const words = currentText.trim().split(/\s+/).filter(Boolean);
+    // Block adding a 6th word when already at 5 words and pressing Space or typing after trailing space
+    if (words.length >= 5 && (e.key === " " || currentText.endsWith(" "))) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="w-full space-y-2.5">
       {activeCurveball && (
@@ -43,7 +70,7 @@ export function CueNotesBar({
             </span>
             <div className="text-xs sm:text-sm font-semibold">
               <span className="text-[11px] font-medium block text-ink/75">
-                Selaan Dadakan (Sisa 45d)
+                Selaan Dadakan
               </span>
               <span>{activeCurveball}</span>
             </div>
@@ -63,26 +90,34 @@ export function CueNotesBar({
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs sm:text-sm font-semibold text-ink">
-          Kerangka Bicara (Maks. 5 kata / poin)
-        </div>
+        <h2 className="text-xs sm:text-sm font-semibold text-ink">
+          Kerangka Bicara
+        </h2>
 
-        <label className="inline-flex items-center gap-2.5 cursor-pointer min-h-[44px] px-3.5 py-1.5 rounded-full bg-surface hover:bg-surface-hover border border-hairline transition-colors select-none">
-          <input
-            type="checkbox"
-            data-testid="toggle-curveball-setting"
-            id="curveball-checkbox"
-            checked={curveballEnabled}
-            onChange={onToggleCurveball}
-            className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
-          />
+        <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-ink">
-            Selaan Dadakan (Sisa 45d)
+            Selaan Dadakan
           </span>
-        </label>
+          <label
+            aria-label="Alihkan Selaan Dadakan"
+            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none"
+          >
+            <input
+              type="checkbox"
+              role="switch"
+              aria-checked={curveballEnabled}
+              data-testid="toggle-curveball-setting"
+              id="curveball-checkbox"
+              aria-label="Alihkan Selaan Dadakan"
+              checked={curveballEnabled}
+              onChange={onToggleCurveball}
+              className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
+            />
+          </label>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+      <div className="grid grid-cols-1 gap-3 pt-1">
         {cueLabels.map((cue, idx) => {
           const count = getWordCount(idx);
           const isFull = count >= 5;
@@ -101,11 +136,13 @@ export function CueNotesBar({
 
               <input
                 type="text"
+                maxLength={60}
                 data-testid={`cue-input-${idx}`}
                 id={`cue-note-input-${idx}`}
                 aria-label={`Catatan Isyarat Poin ${cue.num}`}
                 placeholder={cue.placeholder}
                 value={notes[idx]}
+                onKeyDown={(e) => handleInputKeyDown(e, notes[idx])}
                 onChange={(e) => onNoteChange(idx, e.target.value)}
                 className="w-full min-w-0 bg-transparent text-xs text-ink placeholder:text-slate-400 focus:outline-none"
               />

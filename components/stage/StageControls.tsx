@@ -9,6 +9,7 @@ import {
   Shuffle,
   Timer,
   Check,
+  Loader2,
 } from "lucide-react";
 import { StageMode } from "@/lib/types";
 import { DURATION_CARDS } from "@/lib/constants";
@@ -40,6 +41,7 @@ export interface StageActionButtonsProps {
   isSpinning: boolean;
   onSpin: () => void;
   timerRunning: boolean;
+  isPreparingMic?: boolean;
   elapsedSec?: number;
   targetSec?: number;
   onToggleTimer: () => void;
@@ -53,12 +55,14 @@ export function StageActionButtons({
   isSpinning,
   onSpin,
   timerRunning,
+  isPreparingMic = false,
   elapsedSec = 0,
   targetSec = 120,
   onToggleTimer,
   onResetTimer,
   onCompleteAndArchive,
 }: StageActionButtonsProps) {
+  const lockedPreparing = !timerRunning && isPreparingMic;
   return (
     <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
       {stageMode === "SPIN" ? (
@@ -93,14 +97,22 @@ export function StageActionButtons({
             type="button"
             data-testid={timerRunning ? "pause-timer-btn" : "start-timer-btn"}
             id="timer-toggle-btn"
-            aria-label={timerRunning ? "Jeda Timer" : "Mulai Timer"}
+            aria-label={
+              timerRunning ? "Jeda Timer" : lockedPreparing ? "Menyiapkan mic" : "Mulai Timer"
+            }
+            disabled={lockedPreparing}
             onClick={onToggleTimer}
-            className="min-h-[46px] inline-flex items-center gap-2 px-7 py-2.5 rounded-lg bg-accent-lime hover:bg-accent-lime-hover text-ink font-semibold text-sm border border-ink/15 transition-colors cursor-pointer"
+            className="min-h-[46px] inline-flex items-center gap-2 px-7 py-2.5 rounded-lg bg-accent-lime hover:bg-accent-lime-hover text-ink font-semibold text-sm border border-ink/15 transition-colors cursor-pointer disabled:opacity-65 disabled:cursor-not-allowed"
           >
             {timerRunning ? (
               <>
                 <Pause className="w-4 h-4" aria-hidden="true" />
                 <span>Jeda</span>
+              </>
+            ) : lockedPreparing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                <span>Menyiapkan mic...</span>
               </>
             ) : (
               <>
@@ -166,8 +178,8 @@ export function TimerDurationSelector({
     targetSec !== 60 && targetSec !== 120 && targetSec !== 180;
 
   return (
-    <div className="mt-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {DURATION_CARDS.map((card) => {
           const isSelected = targetSec === card.sec && !customMinutes;
           return (

@@ -4,7 +4,7 @@ import React from "react";
 import { TopicQueueCard } from "./TopicQueueCard";
 import { StatsCard } from "./StatsCard";
 import { ConstraintCard } from "./ConstraintCard";
-import { SessionRecord, SessionStats } from "@/lib/types";
+import { SessionRecord, SessionStats, CoachResult } from "@/lib/types";
 
 export interface BentoGridProps {
   activeTitles: string[];
@@ -29,6 +29,7 @@ export interface BentoGridProps {
   onOpenConstraintModal: () => void;
   onOpenArchiveDrawer: () => void;
   onNotify: (msg: string) => void;
+  onOpenCoachResult?: (result: CoachResult) => void;
 }
 
 export function BentoGrid({
@@ -54,11 +55,12 @@ export function BentoGrid({
   onOpenConstraintModal,
   onOpenArchiveDrawer,
   onNotify,
+  onOpenCoachResult,
 }: BentoGridProps) {
   return (
     <section
       id="kelola-topik"
-      className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pb-14"
+      className="max-w-[1280px] mx-auto px-5 sm:px-10 lg:px-16 pb-14"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-stretch">
         <div className="lg:col-span-5 flex">
@@ -97,6 +99,7 @@ export function BentoGrid({
             stats={stats}
             onClearSessions={onClearSessions}
             onNotify={onNotify}
+            onOpenCoachResult={onOpenCoachResult}
           />
         </div>
       </div>

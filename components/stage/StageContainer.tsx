@@ -7,6 +7,7 @@ import { SlotReel } from "./SlotReel";
 import { TimerClock } from "./TimerClock";
 import { StageActionButtons, TimerDurationSelector } from "./StageControls";
 import { CueNotesBar } from "./CueNotesBar";
+import { CoachPanel, CoachPanelProps } from "./CoachPanel";
 
 export interface StageContainerProps {
   stageMode: StageMode;
@@ -43,6 +44,7 @@ export interface StageContainerProps {
   onToggleCurveball: () => void;
   activeCurveball: string;
   onDismissCurveball: () => void;
+  coachProps?: Omit<CoachPanelProps, "targetSec">;
 }
 
 export function StageContainer({
@@ -75,6 +77,7 @@ export function StageContainer({
   onToggleCurveball,
   activeCurveball,
   onDismissCurveball,
+  coachProps,
 }: StageContainerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -97,7 +100,7 @@ export function StageContainer({
   return (
     <section
       id="panggung-utama"
-      className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6"
+      className="max-w-[1280px] mx-auto px-5 sm:px-10 lg:px-16 pt-4 pb-14 sm:pb-16"
     >
       <div className="relative rounded-2xl bg-canvas border border-hairline p-6 sm:p-10 shadow-xs flex flex-col justify-center min-h-[calc(100vh-84px)]">
         <button
@@ -139,6 +142,7 @@ export function StageContainer({
           isSpinning={isSpinning}
           onSpin={onSpin}
           timerRunning={timerRunning}
+          isPreparingMic={coachProps?.status === "preparing"}
           elapsedSec={elapsedSec}
           targetSec={targetSec}
           onToggleTimer={onToggleTimer}
@@ -147,25 +151,29 @@ export function StageContainer({
         />
       </div>
 
-      <TimerDurationSelector
-        timerRunning={timerRunning}
-        targetSec={targetSec}
-        onSelectDurationPreset={onSelectDurationPreset}
-        customMinutes={customMinutes}
-        onCustomMinutesChange={onCustomMinutesChange}
-        onApplyCustomMinutes={onApplyCustomMinutes}
-      />
-
-      <div className="mt-6 rounded-2xl bg-canvas border border-hairline p-4 sm:p-5 shadow-2xs">
-        <CueNotesBar
-          notes={notes}
-          onNoteChange={onNoteChange}
-          getWordCount={getWordCount}
-          curveballEnabled={curveballEnabled}
-          onToggleCurveball={onToggleCurveball}
-          activeCurveball={activeCurveball}
-          onDismissCurveball={onDismissCurveball}
+      <div className="mt-10 sm:mt-12 max-w-[800px] mx-auto flex flex-col gap-10 sm:gap-12">
+        <TimerDurationSelector
+          timerRunning={timerRunning}
+          targetSec={targetSec}
+          onSelectDurationPreset={onSelectDurationPreset}
+          customMinutes={customMinutes}
+          onCustomMinutesChange={onCustomMinutesChange}
+          onApplyCustomMinutes={onApplyCustomMinutes}
         />
+
+        {coachProps && <CoachPanel {...coachProps} targetSec={targetSec} />}
+
+        <div className="rounded-2xl bg-canvas border border-hairline p-4 sm:p-5 shadow-2xs">
+          <CueNotesBar
+            notes={notes}
+            onNoteChange={onNoteChange}
+            getWordCount={getWordCount}
+            curveballEnabled={curveballEnabled}
+            onToggleCurveball={onToggleCurveball}
+            activeCurveball={activeCurveball}
+            onDismissCurveball={onDismissCurveball}
+          />
+        </div>
       </div>
     </section>
   );
