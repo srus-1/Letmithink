@@ -85,7 +85,7 @@ export function BulkAddModal({
               htmlFor="modal-bulk-titles-textarea"
               className="block text-xs font-medium text-ink-slate mb-1.5"
             >
-              Daftar judul (satu topik per baris):
+              Daftar judul, satu topik per baris:
             </label>
             <textarea
               id="modal-bulk-titles-textarea"

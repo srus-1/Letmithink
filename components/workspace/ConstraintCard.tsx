@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { SlidersHorizontal, Plus, X, Shuffle, Settings } from "lucide-react";
+import { Plus, X, Shuffle, Settings } from "lucide-react";
 
 export interface ConstraintCardProps {
   constraints: string[];
@@ -62,20 +62,21 @@ export function ConstraintCard({
           Aturan Tantangan Bicara
         </h2>
 
-        <button
-          type="button"
-          data-testid="constraint-reel-toggle"
+        <label
           aria-label={useConstraintReel ? "Nonaktifkan Pasangan Tantangan" : "Aktifkan Pasangan Tantangan"}
-          onClick={onToggleReel}
-          className={`min-h-[44px] px-3 py-1 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
-            useConstraintReel
-              ? "bg-[#C6FF33] text-[#0D1117] border border-slate-900/15"
-              : "bg-slate-200 text-slate-600 border border-slate-300"
-          }`}
+          className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>{useConstraintReel ? "Aktif" : "Mati"}</span>
-        </button>
+          <input
+            type="checkbox"
+            role="switch"
+            aria-checked={useConstraintReel}
+            data-testid="constraint-reel-toggle"
+            aria-label={useConstraintReel ? "Nonaktifkan Pasangan Tantangan" : "Aktifkan Pasangan Tantangan"}
+            checked={useConstraintReel}
+            onChange={onToggleReel}
+            className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-[#0D1117] relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-[#C6FF33] checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+          />
+        </label>
       </div>
 
       <div
@@ -150,7 +151,12 @@ export function ConstraintCard({
 
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 mb-3 pb-2 border-b border-slate-200 bg-[#F4F5F7]">
-          <span>Daftar Variasi ({constraints.length})</span>
+          <div className="flex items-center gap-1.5">
+            <span>Daftar Variasi</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-200/80 text-[#0D1117] font-semibold tabular-nums">
+              {constraints.length}
+            </span>
+          </div>
           <button
             type="button"
             data-testid="open-constraint-modal-btn"

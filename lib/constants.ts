@@ -21,7 +21,7 @@ export const DEFAULT_TITLES: string[] = [
 ];
 
 export const DEFAULT_CONSTRAINTS: string[] = [
-  "Gunakan kerangka PREP (Poin utama, Alasan, Contoh nyata, Penutup)",
+  "Gunakan kerangka PREP: Poin utama, Alasan, Contoh nyata, dan Penutup",
   "Buka presentasi dengan cerita pengalaman nyata maksimal 20 detik",
   "Ambil sudut pandang kritis terhadap solusi yang paling populer",
   "Jelaskan konsep inti menggunakan satu analogi benda sehari-hari",

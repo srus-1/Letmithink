@@ -38,6 +38,7 @@ yarn-error.log*
 /_arsip/
 /anti-slop/
 /laporan/
+/tasks/
 /tests/
 /playwright.config.ts
 /AGENTS.md

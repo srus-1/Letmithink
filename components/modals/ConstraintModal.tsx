@@ -122,8 +122,11 @@ export function ConstraintModal({
         </form>
 
         <div className="flex-1 overflow-y-auto pr-1 space-y-2">
-          <div className="text-xs font-medium text-ink-slate mb-1">
-            Daftar variasi aktif ({constraints.length})
+          <div className="text-xs font-medium text-ink-slate mb-1 flex items-center gap-1.5">
+            <span>Daftar variasi aktif</span>
+            <span className="px-1.5 py-0.5 rounded bg-surface border border-hairline font-semibold tabular-nums text-ink">
+              {constraints.length}
+            </span>
           </div>
 
           <ul className="space-y-1.5">

@@ -143,7 +143,7 @@ export function TopicQueueCard({
               htmlFor="bulk-title-textarea"
               className="block text-xs font-medium text-white/80 mb-1.5"
             >
-              Tempel daftar judul (satu per baris):
+              Tempel daftar judul, satu per baris:
             </label>
             <textarea
               data-testid="bulk-titles-textarea"

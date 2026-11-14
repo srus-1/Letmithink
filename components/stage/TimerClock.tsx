@@ -55,7 +55,7 @@ export function TimerClock({
           data-testid="timer-active-topic-text"
           className="font-semibold text-base sm:text-lg text-ink line-clamp-2"
         >
-          {activeTopic || "Belum ada topik dipilih (putar ide terlebih dahulu)"}
+          {activeTopic || "Belum ada topik dipilih"}
         </div>
         {activeConstraint && (
           <p className="mt-1 text-xs font-medium text-ink-slate">
