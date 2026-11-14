@@ -1,9 +1,56 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { SessionRecord, SessionStats, PutarTopikStoragePayload } from "@/lib/types";
+import { SessionRecord, SessionStats, PutarTopikStoragePayload, CoachResult } from "@/lib/types";
 import { STORAGE_KEY, DEFAULT_TITLES, DEFAULT_CONSTRAINTS } from "@/lib/constants";
+import { COACH_HISTORY_MAX_DETAILS } from "@/lib/coach/limits";
 import { formatIndonesianDate } from "@/lib/formatters";
+
+/** Keeps full AI Coach payloads only on the newest sessions while preserving timing stats on older ones. */
+export function pruneCoachHistory(
+  list: SessionRecord[],
+  maxDetails: number = COACH_HISTORY_MAX_DETAILS
+): SessionRecord[] {
+  let kept = 0;
+  let changed = false;
+
+  const next = list.map((record) => {
+    if (!record.coach) return record;
+    if (kept < maxDetails) {
+      kept += 1;
+      return record;
+    }
+    changed = true;
+    const { coach: _omitted, ...rest } = record;
+    void _omitted;
+    return rest;
+  });
+
+  return changed ? next : list;
+}
+
+function persistStoragePayload(payload: PutarTopikStoragePayload): void {
+  const write = (sessionsToSave: SessionRecord[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...payload, sessions: sessionsToSave }));
+  };
+
+  try {
+    write(payload.sessions);
+    return;
+  } catch {
+    // Progressively strip oldest .coach payloads when storage quota is exceeded
+  }
+
+  const coachCount = payload.sessions.filter((s) => Boolean(s.coach)).length;
+  for (let limit = coachCount - 1; limit >= 0; limit -= 1) {
+    try {
+      write(pruneCoachHistory(payload.sessions, limit));
+      return;
+    } catch {
+      // Continue trimming older coach details until payload fits or storage is unavailable
+    }
+  }
+}
 
 export interface TopicStorageReturn {
   hydrated: boolean;
@@ -32,6 +79,7 @@ export interface TopicStorageReturn {
   shuffleConstraint: () => string | null;
   completeSession: (record: Omit<SessionRecord, "id" | "timestamp">) => SessionRecord;
   clearSessions: () => void;
+  attachCoachResult: (sessionId: string, coach: CoachResult) => void;
   resetToDefaults: () => void;
 }
 
@@ -66,7 +114,7 @@ export function useTopicStorage(): TopicStorageReturn {
           setSoundEnabledState(parsed.soundEnabled);
         }
         if (Array.isArray(parsed.sessions)) {
-          setSessions(parsed.sessions);
+          setSessions(pruneCoachHistory(parsed.sessions));
         }
       }
     } catch {
@@ -79,19 +127,14 @@ export function useTopicStorage(): TopicStorageReturn {
   // Skip writing until client hydration completes so SSR defaults do not overwrite saved data
   useEffect(() => {
     if (!hydrated) return;
-    try {
-      const payload: PutarTopikStoragePayload = {
-        activeTitles,
-        archivedTitles,
-        constraints,
-        useConstraintReel,
-        soundEnabled,
-        sessions,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {
-      // Catch quota exceeded or private mode restrictions
-    }
+    persistStoragePayload({
+      activeTitles,
+      archivedTitles,
+      constraints,
+      useConstraintReel,
+      soundEnabled,
+      sessions,
+    });
   }, [hydrated, activeTitles, archivedTitles, constraints, useConstraintReel, soundEnabled, sessions]);
 
   const stats = useMemo<SessionStats>(() => {
@@ -240,9 +283,10 @@ export function useTopicStorage(): TopicStorageReturn {
         spokenSec: record.spokenSec,
         overtimeSec: Math.max(0, record.spokenSec - record.targetSec),
         timestamp: formatIndonesianDate(),
+        ...(record.coach ? { coach: record.coach } : {}),
       };
 
-      setSessions((prev) => [newRecord, ...prev]);
+      setSessions((prev) => pruneCoachHistory([newRecord, ...prev]));
 
       // Move title from active to archived
       setActiveTitles((prev) => prev.filter((t) => t !== record.title));
@@ -257,6 +301,13 @@ export function useTopicStorage(): TopicStorageReturn {
 
   const clearSessions = useCallback(() => {
     setSessions([]);
+  }, []);
+
+  // Analysis can finish after the session row was already saved.
+  const attachCoachResult = useCallback((sessionId: string, coach: CoachResult) => {
+    setSessions((prev) =>
+      pruneCoachHistory(prev.map((s) => (s.id === sessionId ? { ...s, coach } : s)))
+    );
   }, []);
 
   const resetToDefaults = useCallback(() => {
@@ -300,6 +351,7 @@ export function useTopicStorage(): TopicStorageReturn {
     shuffleConstraint,
     completeSession,
     clearSessions,
+    attachCoachResult,
     resetToDefaults,
   };
 }

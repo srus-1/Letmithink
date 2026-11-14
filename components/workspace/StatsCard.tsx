@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, AlertTriangle, Trash2 } from "lucide-react";
-import { SessionRecord, SessionStats } from "@/lib/types";
+import { CheckCircle2, AlertTriangle, Trash2, FileText } from "lucide-react";
+import { SessionRecord, SessionStats, CoachResult } from "@/lib/types";
 import { formatTimer } from "@/lib/formatters";
 
 export interface StatsCardProps {
@@ -10,6 +10,7 @@ export interface StatsCardProps {
   stats: SessionStats;
   onClearSessions: () => void;
   onNotify: (msg: string) => void;
+  onOpenCoachResult?: (result: CoachResult) => void;
 }
 
 export function StatsCard({
@@ -17,6 +18,7 @@ export function StatsCard({
   stats,
   onClearSessions,
   onNotify,
+  onOpenCoachResult,
 }: StatsCardProps) {
   const handleClear = () => {
     if (sessions.length === 0) return;
@@ -139,7 +141,7 @@ export function StatsCard({
                       }`}
                     >
                       {isShortTest ? (
-                        <span>Sesi Tes (&lt;15d)</span>
+                        <span>Sesi Singkat</span>
                       ) : isOnTime ? (
                         <>
                           <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
@@ -164,7 +166,7 @@ export function StatsCard({
 
                   <div className="flex items-center justify-between text-[11px] font-normal text-slate-500 tabular-nums">
                     <span>
-                      Bicara: {formatTimer(session.spokenSec)} (Target {formatTimer(session.targetSec)})
+                      Bicara {formatTimer(session.spokenSec)} / Target {formatTimer(session.targetSec)}
                     </span>
                     {session.constraint && (
                       <span className="text-[#0D1117] line-clamp-1 max-w-[140px]">
@@ -172,6 +174,18 @@ export function StatsCard({
                       </span>
                     )}
                   </div>
+
+                  {session.coach && onOpenCoachResult && (
+                    <button
+                      type="button"
+                      data-testid={`session-coach-btn-${idx}`}
+                      onClick={() => onOpenCoachResult(session.coach!)}
+                      className="min-h-[36px] w-full mt-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0D1117] hover:bg-black text-white text-[11px] font-medium transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#C6FF33]" aria-hidden="true" />
+                      <span>Lihat Feedback AI</span>
+                    </button>
+                  )}
                 </div>
               );
             })}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { X, Sliders, Volume2, Zap, SlidersHorizontal, RotateCcw } from "lucide-react";
+import { X, Sliders, Volume2, Zap, SlidersHorizontal, RotateCcw, Mic } from "lucide-react";
 import { STORAGE_KEY } from "@/lib/constants";
 
 export interface SettingsModalProps {
@@ -13,6 +13,8 @@ export interface SettingsModalProps {
   onToggleCurveball: () => void;
   useConstraintReel: boolean;
   onToggleConstraintReel: () => void;
+  coachEnabled?: boolean;
+  onToggleCoach?: () => void;
   onResetToDefaults: () => void;
   onNotify: (msg: string) => void;
 }
@@ -26,6 +28,8 @@ export function SettingsModal({
   onToggleCurveball,
   useConstraintReel,
   onToggleConstraintReel,
+  coachEnabled = false,
+  onToggleCoach,
   onResetToDefaults,
   onNotify,
 }: SettingsModalProps) {
@@ -86,8 +90,8 @@ export function SettingsModal({
         </div>
 
         <div className="mt-5 space-y-3">
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface border border-hairline">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-surface border border-hairline">
+            <div className="flex items-center gap-2.5 min-w-0">
               <Volume2 className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />
               <div className="text-xs">
                 <span className="font-semibold text-ink block">
@@ -99,26 +103,28 @@ export function SettingsModal({
               </div>
             </div>
 
-            <button
-              type="button"
+            <label
               aria-label="Alihkan Efek Suara"
-              onClick={onToggleSound}
-              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                soundEnabled
-                  ? "bg-accent-lime text-ink border border-ink/20"
-                  : "bg-canvas text-ink-slate border border-hairline"
-              }`}
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none shrink-0"
             >
-              {soundEnabled ? "Aktif" : "Mati"}
-            </button>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-checked={soundEnabled}
+                aria-label="Alihkan Efek Suara"
+                checked={soundEnabled}
+                onChange={onToggleSound}
+                className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
+              />
+            </label>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface border border-hairline">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-surface border border-hairline">
+            <div className="flex items-center gap-2.5 min-w-0">
               <Zap className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />
               <div className="text-xs">
                 <span className="font-semibold text-ink block">
-                  Selaan 45 Detik
+                  Selaan Dadakan
                 </span>
                 <span className="text-ink-slate text-[11px] font-normal">
                   Tantangan improvisasi otomatis saat sisa 45 detik.
@@ -126,22 +132,24 @@ export function SettingsModal({
               </div>
             </div>
 
-            <button
-              type="button"
-              aria-label="Alihkan Selaan 45 Detik"
-              onClick={onToggleCurveball}
-              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                curveballEnabled
-                  ? "bg-accent-lime text-ink border border-ink/20"
-                  : "bg-canvas text-ink-slate border border-hairline"
-              }`}
+            <label
+              aria-label="Alihkan Selaan Dadakan"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none shrink-0"
             >
-              {curveballEnabled ? "Aktif" : "Mati"}
-            </button>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-checked={curveballEnabled}
+                aria-label="Alihkan Selaan Dadakan"
+                checked={curveballEnabled}
+                onChange={onToggleCurveball}
+                className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
+              />
+            </label>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface border border-hairline">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-surface border border-hairline">
+            <div className="flex items-center gap-2.5 min-w-0">
               <SlidersHorizontal className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />
               <div className="text-xs">
                 <span className="font-semibold text-ink block">
@@ -153,19 +161,52 @@ export function SettingsModal({
               </div>
             </div>
 
-            <button
-              type="button"
+            <label
               aria-label="Alihkan Pasangan Tantangan"
-              onClick={onToggleConstraintReel}
-              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                useConstraintReel
-                  ? "bg-accent-lime text-ink border border-ink/20"
-                  : "bg-canvas text-ink-slate border border-hairline"
-              }`}
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none shrink-0"
             >
-              {useConstraintReel ? "Aktif" : "Mati"}
-            </button>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-checked={useConstraintReel}
+                aria-label="Alihkan Pasangan Tantangan"
+                checked={useConstraintReel}
+                onChange={onToggleConstraintReel}
+                className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
+              />
+            </label>
           </div>
+
+          {onToggleCoach && (
+            <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-surface border border-hairline">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Mic className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />
+                <div className="text-xs">
+                  <span className="font-semibold text-ink block">
+                    Rekam &amp; Evaluasi AI Coach
+                  </span>
+                  <span className="text-ink-slate text-[11px] font-normal">
+                    Rekam suara saat timer berjalan hingga 10 menit untuk transkrip dan koreksi.
+                  </span>
+                </div>
+              </div>
+
+              <label
+                aria-label="Alihkan AI Coach"
+                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer select-none shrink-0"
+              >
+                <input
+                  type="checkbox"
+                  role="switch"
+                  aria-checked={coachEnabled}
+                  aria-label="Alihkan AI Coach"
+                  checked={coachEnabled}
+                  onChange={onToggleCoach}
+                  className="appearance-none w-8 h-[18px] rounded-full bg-slate-300 checked:bg-ink relative cursor-pointer transition-colors shrink-0 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white checked:after:bg-accent-lime checked:after:translate-x-[14px] after:transition-transform focus:outline-none focus:ring-2 focus:ring-ink/20"
+                />
+              </label>
+            </div>
+          )}
 
           <div className="pt-3 border-t border-hairline">
             <div className="text-[11px] font-normal text-ink-slate mb-2">

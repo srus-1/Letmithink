@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { StageMode, TimerState, StageSignal } from "@/lib/types";
 import { DEFAULT_TARGET_SEC, CURVEBALL_PROMPTS } from "@/lib/constants";
 
@@ -43,6 +43,14 @@ export function usePresentationTimer(
   const [curveballEnabled, setCurveballEnabled] = useState(false);
   const [activeCurveball, setActiveCurveball] = useState("");
 
+  const elapsedRef = useRef(0);
+  const timeUpFiredRef = useRef(false);
+  const curveballFiredRef = useRef(false);
+  const onTimeUpRef = useRef(onTimeUp);
+  useEffect(() => {
+    onTimeUpRef.current = onTimeUp;
+  }, [onTimeUp]);
+
   const remainingSec = Math.max(0, targetSec - elapsedSec);
   const isOvertime = false;
 
@@ -53,34 +61,44 @@ export function usePresentationTimer(
     return "PAUSED";
   }, [timerRunning, elapsedSec, remainingSec]);
 
-  // 1000ms countdown interval that automatically stops and rings alarm at 00:00:00
+  useEffect(() => {
+    elapsedRef.current = elapsedSec;
+    if (elapsedSec < targetSec) {
+      timeUpFiredRef.current = false;
+    }
+    if (elapsedSec === 0) {
+      curveballFiredRef.current = false;
+    }
+  }, [elapsedSec, targetSec]);
+
+  // 1000ms countdown interval that fires onTimeUp once outside state updaters
   useEffect(() => {
     if (!timerRunning) return;
 
     const interval = setInterval(() => {
-      setElapsedSec((prev) => {
-        const next = prev + 1;
-        const currentRemaining = targetSec - next;
+      const next = Math.min(targetSec, elapsedRef.current + 1);
+      elapsedRef.current = next;
+      setElapsedSec(next);
 
-        if (curveballEnabled && currentRemaining === 45) {
-          const pick = CURVEBALL_PROMPTS[Math.floor(Math.random() * CURVEBALL_PROMPTS.length)];
-          setActiveCurveball(pick);
+      const currentRemaining = targetSec - next;
+
+      if (curveballEnabled && currentRemaining === 45 && !curveballFiredRef.current) {
+        curveballFiredRef.current = true;
+        const pick = CURVEBALL_PROMPTS[Math.floor(Math.random() * CURVEBALL_PROMPTS.length)];
+        setActiveCurveball(pick);
+      }
+
+      if (targetSec > 0 && currentRemaining <= 0) {
+        setTimerRunning(false);
+        if (!timeUpFiredRef.current) {
+          timeUpFiredRef.current = true;
+          setTimeout(() => onTimeUpRef.current?.(), 0);
         }
-
-        if (currentRemaining <= 0) {
-          setTimerRunning(false);
-          if (onTimeUp) {
-            setTimeout(() => onTimeUp(), 0);
-          }
-          return targetSec;
-        }
-
-        return next;
-      });
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timerRunning, targetSec, curveballEnabled, onTimeUp]);
+  }, [timerRunning, targetSec, curveballEnabled]);
 
   // Dynamic Stage Signals (Strictly Hitam, Putih, & Kuning Stabilo)
   const stageSignal = useMemo<StageSignal>(() => {
@@ -145,7 +163,12 @@ export function usePresentationTimer(
   }, [elapsedSec, remainingSec, targetSec, timerRunning]);
 
   const start = useCallback(() => {
-    setElapsedSec((prev) => (prev >= targetSec ? 0 : prev));
+    if (elapsedRef.current >= targetSec) {
+      elapsedRef.current = 0;
+      timeUpFiredRef.current = false;
+      curveballFiredRef.current = false;
+      setElapsedSec(0);
+    }
     setTimerRunning(true);
   }, [targetSec]);
 
@@ -154,21 +177,26 @@ export function usePresentationTimer(
   }, []);
 
   const toggleTimer = useCallback(() => {
-    setTimerRunning((prev) => {
-      if (!prev) {
-        setElapsedSec((elapsed) => (elapsed >= targetSec ? 0 : elapsed));
-      }
-      return !prev;
-    });
-  }, [targetSec]);
+    if (timerRunning) {
+      pause();
+    } else {
+      start();
+    }
+  }, [timerRunning, pause, start]);
 
   const resetTimer = useCallback(() => {
+    elapsedRef.current = 0;
+    timeUpFiredRef.current = false;
+    curveballFiredRef.current = false;
     setTimerRunning(false);
     setElapsedSec(0);
     setActiveCurveball("");
   }, []);
 
   const setDuration = useCallback((seconds: number) => {
+    elapsedRef.current = 0;
+    timeUpFiredRef.current = false;
+    curveballFiredRef.current = false;
     setTargetSecState(seconds);
     setElapsedSec(0);
     setCustomMinutes("");
@@ -181,6 +209,9 @@ export function usePresentationTimer(
   const applyCustomMinutes = useCallback((): boolean => {
     const num = parseFloat(customMinutes);
     if (!isNaN(num) && num > 0 && num <= 120) {
+      elapsedRef.current = 0;
+      timeUpFiredRef.current = false;
+      curveballFiredRef.current = false;
       setTargetSecState(Math.round(num * 60));
       setElapsedSec(0);
       return true;

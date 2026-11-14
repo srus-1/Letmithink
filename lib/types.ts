@@ -14,6 +14,45 @@ export interface SessionRecord {
   spokenSec: number;           // Actual time spoken in seconds
   overtimeSec: number;         // Overtime in seconds (Math.max(0, spokenSec - targetSec))
   timestamp: string;           // Formatted date string (e.g. "08 Nov, 03:30")
+  coach?: CoachResult;         // AI feedback, present only when AI Coach was on
+}
+
+export type CoachMode = "id-public-speaking" | "en-grammar";
+
+export type CoachStatus =
+  | "idle"
+  | "preparing"
+  | "recording"
+  | "paused"
+  | "analyzing"
+  | "done"
+  | "error";
+
+export interface CoachCorrection {
+  original: string;
+  suggestion: string;
+  reason: string;
+}
+
+export interface CoachScore {
+  label: string;
+  score: number;               // 1-10
+  note: string;
+}
+
+export interface CoachResult {
+  mode: CoachMode;
+  topic: string;
+  recordedSec: number;
+  transcript: string;
+  wordsPerMinute: number;
+  fillerWords: { word: string; count: number }[];
+  scores: CoachScore[];
+  techniques: string[];
+  corrections: CoachCorrection[];
+  strengths: string[];
+  improvements: string[];
+  improvedVersion: string;
 }
 
 export interface DurationCard {
@@ -63,4 +102,26 @@ export interface PutarTopikStoragePayload {
   soundEnabled: boolean;
   sessions: SessionRecord[];
   settings?: AppSettings;
+}
+
+export type CoachChatRole = "user" | "assistant";
+
+export interface CoachChatMessage {
+  id: string;
+  role: CoachChatRole;
+  content: string;
+  createdAt: number;
+  kind?: "chat" | "summary" | "status";
+}
+
+export interface CoachChatResultSummary {
+  mode: CoachMode;
+  topic: string;
+  recordedSec: number;
+  wordsPerMinute: number;
+  transcriptExcerpt: string;
+  scores: { label: string; score: number; note: string }[];
+  strengths: string[];
+  improvements: string[];
+  correctionsCount: number;
 }
